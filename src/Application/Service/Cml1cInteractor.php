@@ -92,6 +92,20 @@ final class Cml1cInteractor
 
         return new Response('success');
     }
+    private function runImportAll(): void
+    {
+        // ищем все XML, которые лежат в директории после распаковки
+        $files = glob($this->storageDir . '/*.xml');
+        if (!$files) {
+            return;
+        }
+
+        foreach ($files as $file) {
+            $this->bus->dispatch(
+                new ImportCatalogCommand($file)
+            );
+        }
+    }
 
     private function runImport(Request $request): Response
     {
@@ -100,13 +114,13 @@ final class Cml1cInteractor
 
         // если прислали zip-имя, но распаковали – ищем реальный XML
         if (str_ends_with($uploadedName, '.zip')) {
-            $files = glob($dir . '/*.xml');
-            if (!$files) {
-                return new Response("fail\nno xml after unzip", 400);
-            }
-            $fullPath = $files[0];   // берём первый
-        } else {
-            $fullPath = $dir . '/' . $uploadedName;
+            $this->runImportAll();
+            return new Response('success');
+        }
+
+        $fullPath = $this->storageDir . '/' . $uploadedName;
+        if (!file_exists($fullPath)) {
+            return new Response("fail\nfile not found", 400);
         }
 
         if (!file_exists($fullPath)) {
