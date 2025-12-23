@@ -8,7 +8,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Filesystem\Filesystem;
 
 #[AsMessageHandler]
-class CatalogImporter
+class OffersImporter
 {
     public function __construct(
     ) {
@@ -16,7 +16,15 @@ class CatalogImporter
 
     public function __invoke(ImportCatalogCommand $command): void
     {
-        XmlStreamHelper::walkPath($command->filePath, ['Товары','Товар'], [$this, 'handleProduct']);
+        $xml = simplexml_load_string(file_get_contents($command->filePath));
+        if (!$xml) {
+            throw new \RuntimeException('Cannot parse XML');
+        }
+
+        // пример: обрабатываем только товары
+        foreach ($xml->Каталог->Товары->Товар as $item) {
+            $this->handleProduct($item);
+        }
 
     }
 

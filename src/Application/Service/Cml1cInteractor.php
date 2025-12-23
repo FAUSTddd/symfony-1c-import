@@ -100,10 +100,13 @@ final class Cml1cInteractor
             return;
         }
 
-        foreach ($files as $file) {
-            $this->bus->dispatch(
-                new ImportCatalogCommand($file)
-            );
+        foreach (glob($this->storageDir.'/*.xml') as $file) {
+            $base = basename($file);
+            if ($base === 'import.xml') {
+                $this->bus->dispatch(new ImportCatalogCommand($file));
+            } elseif ($base === 'offers.xml') {
+                $this->bus->dispatch(new ImportOffersCommand($file));
+            }
         }
     }
 

@@ -1,0 +1,20 @@
+# config/services.yaml  (внутри пакета)
+services:
+  FaustDDD\Symfony1cImport\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Domain/'
+
+  FaustDDD\Symfony1cImport\Application\Service\Cml1cInteractor:
+    arguments:
+      $projectDir: '%kernel.project_dir%'
+      $login: '%env(IMPORT_1C_LOGIN)%'
+      $password: '%env(IMPORT_1C_PASSWORD)%'
+      $bus: '@messenger.default_bus'
+      $fs: '@filesystem'
+
+  FaustDDD\Symfony1cImport\Infrastructure\Controller\Import1CController:
+    public: true
+    arguments:
+      $interactor: '@FaustDDD\Symfony1cImport\Application\Service\Cml1cInteractor'
