@@ -26,7 +26,8 @@
   },
   "autoload": {
     "psr-4": {
-      "FaustDDD\\Symfony1cImport\\": "src/"
+      "FaustDDD\\Symfony1cImport\\": "src/",
+      "FaustDDD\\Symfony1cImport\\DependencyInjection\\": "src/DependencyInjection"
     }
   },
   "autoload-dev": {
