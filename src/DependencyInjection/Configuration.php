@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace FaustDDD\Symfony1cImport\DependencyInjection;
@@ -11,21 +10,14 @@ final class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('faustddd_1c_import');
-        $rootNode = $treeBuilder->getRootNode();
-
-        $rootNode
+        return (new TreeBuilder('faustddd_1c_import'))
+            ->getRootNode()
             ->children()
             ->scalarNode('endpoint')
-            ->defaultValue('/1c/exchange')
-            ->info('URL, на который 1С будет слать запросы')
-            ->validate()
-            ->ifTrue(fn ($v) => !is_string($v) || $v === '')
-            ->thenInvalid('Endpoint must be a non-empty string')
+            ->defaultValue('/import/1c-exchange')
+            ->cannotBeEmpty()
             ->end()
             ->end()
-            ->end();
-
-        return $treeBuilder;
+            ->end();   // <-- закрываем root-ноду
     }
 }
