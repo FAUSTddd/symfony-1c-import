@@ -1,7 +1,5 @@
 <?php
-
-declare(strict_types=1);
-
+// src/DependencyInjection/Symfony1cImportExtension.php
 namespace FaustDDD\Symfony1cImport\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
@@ -16,12 +14,10 @@ final class Symfony1cImportExtension extends Extension
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
 
-        // сохраняем параметр
-        $container->setParameter('faustddd_1c_import.endpoint', $config['endpoint']);
-
-        // загружаем services.yaml пакета
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../config'));
         $loader->load('services.yaml');
+
+        $container->setParameter('faustddd_1c_import.endpoint', $config['endpoint']);
     }
 
     /**
