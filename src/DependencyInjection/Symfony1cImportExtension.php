@@ -2,6 +2,7 @@
 // src/DependencyInjection/Symfony1cImportExtension.php
 namespace FaustDDD\Symfony1cImport\DependencyInjection;
 
+use Exception;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -9,12 +10,15 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 final class Symfony1cImportExtension extends Extension
 {
+    /**
+     * @throws Exception
+     */
     public function load(array $configs, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
-
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../config'));
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
         $loader->load('services.yaml');
+
 
         $container->setParameter('faustddd_1c_import.endpoint', $config['endpoint']);
     }
