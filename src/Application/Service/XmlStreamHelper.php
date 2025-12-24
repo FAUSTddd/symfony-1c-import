@@ -2,6 +2,9 @@
 // src/Application/Service/XmlStreamHelper.php
 namespace FaustDDD\Symfony1cImport\Application\Service;
 
+use RuntimeException;
+use Throwable;
+
 final class XmlStreamHelper
 {
     /**
@@ -12,7 +15,7 @@ final class XmlStreamHelper
     {
         $reader = new \XMLReader();
         if (!$reader::open($filePath)) {
-            throw new \RuntimeException("Cannot open XML file: $filePath");
+            throw new RuntimeException("Cannot open XML file: $filePath");
         }
 
         $count = 0;
@@ -32,31 +35,33 @@ final class XmlStreamHelper
      * Потоковый обход элементов по вложенному пути.
      * Пример: ['Товары', 'Товар'] → найдёт все <Товар> внутри <Товары>.
      * Возвращает количество найденных элементов.
+     *
+     * @throws RuntimeException если файл не удалось открыть
+     * @throws Throwable        может быть выброшено из $callback
      */
     public static function walkPath(string $filePath, array $path, callable $callback): int
     {
         $reader = new \XMLReader();
         if (!$reader::open($filePath)) {
-            throw new \RuntimeException("Cannot open XML file: $filePath");
+            throw new RuntimeException("Cannot open XML file: $filePath");
         }
 
-        $depth   = 0;
-        $target  = end($path);          // последний элемент пути
-        $count   = 0;
+        $depth = 0;
+        $count = 0;
 
         while ($reader->read()) {
-            // зашли в нужный родительский элемент
             if ($reader->nodeType === \XMLReader::ELEMENT && $reader->localName === $path[$depth]) {
                 $depth++;
                 if ($depth === count($path)) {
-                    // нашли конечный элемент
                     $element = new \SimpleXMLElement($reader->readOuterXML());
                     $callback($element);
                     $count++;
-                    $depth--; // вышли из конечного элемента
-                    $reader->next(); // перескок к следующему элементу с тем же именем
+                    $depth--;
+                    if (!$reader->next()) {        // защита от «invalid state»
+                        break;
+                    }
                 }
-            } elseif ($reader->nodeType === \XMLReader::END_ELEMENT && $reader->localName === $path[$depth - 1]) {
+            } elseif ($reader->nodeType === \XMLReader::END_ELEMENT && $depth > 0 && $reader->localName === $path[$depth - 1]) {
                 $depth--;
             }
         }

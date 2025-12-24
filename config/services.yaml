@@ -5,6 +5,7 @@ services:
     exclude:
       - '../src/DependencyInjection/'
       - '../src/Domain/'
+      - '../src/Infrastructure/Controller/'
 
   FaustDDD\Symfony1cImport\Application\Service\Cml1cInteractor:
     arguments:
@@ -16,5 +17,6 @@ services:
 
   FaustDDD\Symfony1cImport\Infrastructure\Controller\Import1CController:
     public: true
+    tags: [controller.service_arguments]
     arguments:
       $interactor: '@FaustDDD\Symfony1cImport\Application\Service\Cml1cInteractor'
