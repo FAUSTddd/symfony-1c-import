@@ -42,7 +42,7 @@ final class XmlStreamHelper
     public static function walkPath(string $filePath, array $path, callable $callback): int
     {
         $reader = new \XMLReader();
-        if (!$reader::open($filePath)) {
+        if (!$reader->open($filePath)) {
             throw new RuntimeException("Cannot open XML file: $filePath");
         }
 
