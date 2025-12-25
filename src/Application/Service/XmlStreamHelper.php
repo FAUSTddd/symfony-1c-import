@@ -48,20 +48,34 @@ final class XmlStreamHelper
 
         $depth = 0;
         $count = 0;
+        $top   = $path[0] ?? null;          // имя корневого узла, который нас интересует
 
         while ($reader->read()) {
-            if ($reader->nodeType === \XMLReader::ELEMENT && $reader->localName === $path[$depth]) {
-                $depth++;
-                if ($depth === count($path)) {
-                    $element = new \SimpleXMLElement($reader->readOuterXML());
-                    $callback($element);
-                    $count++;
-                    $depth--;
-                    if (!$reader->next()) {        // защита от «invalid state»
-                        break;
+            /* -------- открытие элемента -------- */
+            if ($reader->nodeType === \XMLReader::ELEMENT) {
+                if ($depth < count($path) && $reader->localName === $path[$depth]) {
+                    $depth++;
+                    if ($depth === count($path)) {        // дошли до нужного узла
+                        $element = new \SimpleXMLElement($reader->readOuterXML());
+                        $callback($element);
+                        $count++;
+                        $depth--;                         // возвращаемся на уровень родителя
+                        if (!$reader->next()) {           // переход к следующему сиблингу
+                            break;
+                        }
+                        continue;
                     }
                 }
-            } elseif ($reader->nodeType === \XMLReader::END_ELEMENT && $depth > 0 && $reader->localName === $path[$depth - 1]) {
+            }
+
+            /* -------- закрытие элемента -------- */
+            if ($reader->nodeType === \XMLReader::END_ELEMENT
+                && $reader->localName === $top          // закрывается первый элемент пути
+                && $depth === 1) {                      // мы как раз покидаем его
+                break;                                  // больше ничего не интересует
+            }
+
+            if ($depth > 0 && $reader->nodeType === \XMLReader::END_ELEMENT) {
                 $depth--;
             }
         }
