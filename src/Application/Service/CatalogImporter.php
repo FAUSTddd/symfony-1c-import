@@ -10,9 +10,6 @@ use Symfony\Component\Filesystem\Filesystem;
 #[AsMessageHandler]
 class CatalogImporter
 {
-    public function __construct(
-    ) {
-    }
 
     public function __invoke(ImportCatalogCommand $command): void
     {
