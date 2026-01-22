@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace FaustDDD\Symfony1cImport\Application\Service;
 
 use FaustDDD\Symfony1cImport\Application\Command\ImportCatalogCommand;
+use FaustDDD\Symfony1cImport\Application\Command\ImportOffersCommand;
 use FaustDDD\Symfony1cImport\Domain\Cml\CmlFile;
 use FaustDDD\Symfony1cImport\Domain\Cml\CmlMode;
 use Symfony\Component\HttpFoundation\Request;
