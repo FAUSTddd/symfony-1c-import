@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class Import1CController extends AbstractController
 {
-    public function __construct(private Cml1cInteractor $interactor) {}
+    public function __construct(private readonly Cml1cInteractor $interactor) {}
 
     #[Route(
         path: '%faustddd_1c_import.endpoint%',

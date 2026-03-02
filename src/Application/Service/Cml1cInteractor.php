@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace FaustDDD\Symfony1cImport\Application\Service;
 
 use FaustDDD\Symfony1cImport\Application\Command\ImportCatalogCommand;
+use FaustDDD\Symfony1cImport\Application\Command\ImportCustomCommand;
 use FaustDDD\Symfony1cImport\Application\Command\ImportOffersCommand;
 use FaustDDD\Symfony1cImport\Domain\Cml\CmlFile;
 use FaustDDD\Symfony1cImport\Domain\Cml\CmlMode;
@@ -114,9 +115,7 @@ final class Cml1cInteractor
     private function runImport(Request $request): Response
     {
         $uploadedName = basename($request->query->get('filename', ''));
-        $dir = $this->storageDir;
 
-        // если прислали zip-имя, но распаковали – ищем реальный XML
         if (str_ends_with($uploadedName, '.zip')) {
             $this->runImportAll();
             return new Response('success');
@@ -127,11 +126,14 @@ final class Cml1cInteractor
             return new Response("fail\nfile not found", 400);
         }
 
-        if (!file_exists($fullPath)) {
-            return new Response("fail\nfile not found", 400);
+        // --- исправление: проверяем имя файла ---
+        if ($uploadedName === 'import.xml') {
+            $this->bus->dispatch(new ImportCatalogCommand($fullPath));
+        } elseif ($uploadedName === 'offers.xml') {
+            $this->bus->dispatch(new ImportOffersCommand($fullPath));
+        } else {
+            $this->bus->dispatch(new ImportCustomCommand($fullPath));
         }
-
-        $this->bus->dispatch(new ImportCatalogCommand($fullPath));
 
         return new Response('success');
     }
