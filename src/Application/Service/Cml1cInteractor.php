@@ -11,6 +11,7 @@ use FaustDDD\Symfony1cImport\Domain\Cml\CmlMode;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use ZipArchive;
 
@@ -32,6 +33,7 @@ final class Cml1cInteractor
     public function handle(Request $request): Response
     {
         $mode = CmlMode::from($request->query->get('mode', ''));
+        if ($mode->value !== 'init' && $mode->value !== 'checkauth') dd($mode);
         return match ($mode) {
             CmlMode::CheckAuth => $this->checkAuth($request),
             CmlMode::Init      => $this->init(),
@@ -51,6 +53,7 @@ final class Cml1cInteractor
 
         if ($user !== $this->login || $pass !== $this->password) {
             return new Response('failure\nWrong credentials', 401, [
+                'Content-Type' => 'text/plain',
                 'WWW-Authenticate' => 'Basic realm="1C Exchange"'
             ]);
         }
@@ -76,7 +79,7 @@ final class Cml1cInteractor
     {
         $filename = basename($request->query->get('filename', ''));
         if (!$filename) {
-            return new Response('fail', 400);
+            return new Response('fail', 400, ['Content-Type' => 'text/plain']);
         }
 
         $fullPath = $this->storageDir . '/' . $filename;
@@ -92,22 +95,41 @@ final class Cml1cInteractor
             }
         }
 
-        return new Response('success');
+        return new Response('success', 200, ['Content-Type' => 'text/plain']);
     }
+
+    /**
+     * @throws ExceptionInterface
+     */
     private function runImportAll(): void
     {
-        // ищем все XML, которые лежат в директории после распаковки
-        $files = glob($this->storageDir . '/*.xml');
-        if (!$files) {
-            return;
-        }
+        $files = glob($this->storageDir.'/*.xml');
 
-        foreach (glob($this->storageDir.'/*.xml') as $file) {
+        // Сортируем: import.xml первый, offers.xml второй, остальные по алфавиту
+        usort($files, static function($a, $b) {
+            $priority = [
+                'import.xml' => 0,
+                'offers.xml' => 1,
+            ];
+            $nameA = basename($a);
+            $nameB = basename($b);
+            $priorA = $priority[$nameA] ?? 99;
+            $priorB = $priority[$nameB] ?? 99;
+
+            if ($priorA !== $priorB) {
+                return $priorA <=> $priorB;
+            }
+            return $nameA <=> $nameB; // одинаковый приоритет — по алфавиту
+        });
+
+        foreach ($files as $file) {
             $base = basename($file);
             if ($base === 'import.xml') {
                 $this->bus->dispatch(new ImportCatalogCommand($file));
             } elseif ($base === 'offers.xml') {
                 $this->bus->dispatch(new ImportOffersCommand($file));
+            } else {
+                $this->bus->dispatch(new ImportCustomCommand($file));
             }
         }
     }
@@ -118,12 +140,12 @@ final class Cml1cInteractor
 
         if (str_ends_with($uploadedName, '.zip')) {
             $this->runImportAll();
-            return new Response('success');
+            return new Response('success', 200, ['Content-Type' => 'text/plain']);
         }
 
         $fullPath = $this->storageDir . '/' . $uploadedName;
         if (!file_exists($fullPath)) {
-            return new Response("fail\nfile not found", 400);
+            return new Response("fail\nfile not found", 400, ['Content-Type' => 'text/plain']);
         }
 
         // --- исправление: проверяем имя файла ---
@@ -135,6 +157,6 @@ final class Cml1cInteractor
             $this->bus->dispatch(new ImportCustomCommand($fullPath));
         }
 
-        return new Response('success');
+        return new Response('success', 200, ['Content-Type' => 'text/plain']);
     }
 }
