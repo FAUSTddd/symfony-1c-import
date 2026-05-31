@@ -33,7 +33,7 @@ final class Cml1cInteractor
     public function handle(Request $request): Response
     {
         $mode = CmlMode::from($request->query->get('mode', ''));
-        if ($mode->value !== 'init' && $mode->value !== 'checkauth') dd($mode);
+
         return match ($mode) {
             CmlMode::CheckAuth => $this->checkAuth($request),
             CmlMode::Init      => $this->init(),
