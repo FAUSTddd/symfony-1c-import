@@ -1,65 +1,63 @@
-# Import-слой: 1С ↔ CommerceML ↔ Symfony 7
+# Symfony 1C Import
+[![Tests](https://github.com/FAUSTddd/symfony-1c-import/actions/workflows/tests.yml/badge.svg)](https://github.com/FAUSTddd/symfony-1c-import/actions/workflows/tests.yml)
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue)
+![Symfony](https://img.shields.io/badge/Symfony-6.4%20|%207.x%20|%208.0-green)
 
-## Назначение
-Отвечает за весь жизненный цикл обмена данными с 1С по протоколу CommerceML:
-- приём файлов `import.xml` / `offers.xml`
-- парсинг и сохранение каталога, остатков, цен
-- фоновая или синхронная обработка
+Библиотека для интеграции Symfony с 1С:Предприятие по протоколу CommerceML.
 
-## Структура папок (clean architecture)
+## Требования
 
-src/Import/  
-│  
-├─ Application/               ← сценарии (use-cases)  
-│  ├─ Command/  
-│  │   └─ ImportCatalogCommand.php    → DTO «импортируй этот XML»  
-│  │  
-│  └─ Service/  
-│      ├─ Cml1cInteractor.php         → «разговаривает» с 1С (checkauth/init/file/import)  
-│      └─ CatalogImporter.php         → парсит XML и пишет в БД (handler команды)  
-│  
-├─ Domain/                    ← чистая предметная область (без зависимостей)  
-│  └─ Cml/  
-│      ├─ CmlFile.php         → value-object «файл CommerceML»  
-│      └─ CmlMode.php         → enum режимов 1С (checkauth/init/file/import)  
-│  
-└─ Infrastructure/            → адаптеры «наружу»  
-└─ Controller/  
-└─ Import1CController.php   → маршрут /1c/exchange, делегирует Cml1cInteractor
+| PHP | Symfony |
+|-----|---------|
+| 8.2+ | 6.4, 7.x |
+| 8.4+ | 8.x |
 
-## Логика работы слоёв
-
-1. 1С делает HTTP-запрос  
-   `GET /1c/exchange?type=catalog&mode=checkauth`
-
-2. **Infrastructure / Controller**  
-   `Import1CController` создаёт `Request` и вызывает **сервис приложения** `Cml1cInteractor`
-
-3. **Application / Service / Cml1cInteractor**
-    - превращает `?mode=` в `enum CmlMode`
-    - для `checkauth/init` сразу возвращает текст-ответ
-    - для `file` сохраняет тело запроса в `var/import/`
-    - для `import` создаёт `ImportCatalogCommand` и **кидает её в шину** (`MessageBus`)
-
-4. **MessageBus** (Symfony Messenger)
-    - может быть синхронным (обрабатывается мгновенно)
-    - или асинхронным (Redis/RabbitMQ) — 1С сразу получит `success`, а импорт пойдёт в фоне
-
-5. **Application / Service / CatalogImporter** (handler команды)
-    - читает XML через `simplexml`
-    - маппит узлы в сущности (`Product`, `Category`, `Manufacturer` …)
-    - сохраняет через `EntityManager`
-
-6. **Domain / Cml / …**
-    - `CmlMode` — native PHP-enum
-    - `CmlFile` — value-object без зависимостей  
-      → легко тестировать unit-тестами, не требует Symfony
-
-## Команды для быстрого старта
-
+## Установка
 ```bash
-# очередь обрабатывается синхронно (по-умолчанию)
-php bin/console messenger:consume async
+composer require faustddd/symfony-1c-import
+```
 
-# если переделали под async (Redis/Rabbit)
-php bin/console messenger:consume async --time-limit=3600
+## Подключение
+```bash
+// config/bundles.php
+return [
+    // ...
+    FaustDDD\Symfony1cImport\Symfony1cImportBundle::class => ['all' => true],
+];
+```
+
+## Конфигурация
+```bash
+# config/packages/faustddd_1c_import.yaml
+faustddd_1c_import:
+    endpoint: '/1c/exchange'
+    login: '%env(IMPORT_1C_LOGIN)%'
+    password: '%env(IMPORT_1C_PASSWORD)%'
+   
+# .env
+IMPORT_1C_LOGIN=admin
+IMPORT_1C_PASSWORD=change_me
+```
+## Использование
+| Вариант                | Файл 1С      | Что нужно                     | Когда             |
+| ---------------------- | ------------ | ----------------------------- | ----------------- |
+| **Импорт каталога**    | `import.xml` | Наследовать `CatalogImporter` | Товары, категории |
+| **Импорт предложений** | `offers.xml` | Наследовать `OffersImporter`  | Цены, остатки     |
+| **Кастомный импорт**   | Любой XML    | Наследовать `CustomImporter`  | Свой формат       |
+
+## Пример использования
+```bash
+#[AsMessageHandler]
+class MyCatalogImporter extends CatalogImporter
+{
+    protected function handleProduct(\SimpleXMLElement $item): void
+    {
+        // Ваша логика
+    }
+}
+```
+## Протокол CommerceML
+1С делает 4 запроса: checkauth → init → file → import
+
+## Лицензия
+MIT
