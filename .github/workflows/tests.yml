@@ -27,5 +27,10 @@ jobs:
           composer require symfony/framework-bundle:${{ matrix.symfony }} --no-update
           composer update --prefer-stable --prefer-dist --no-interaction
 
+      - name: Debug directory
+        run: |
+          pwd
+          ls -la
+
       - name: Run tests
         run: vendor/bin/phpunit --configuration phpunit.xml.dist
