@@ -22,6 +22,8 @@ final class Symfony1cImportExtension extends Extension
 
 
         $container->setParameter('faustddd_1c_import.endpoint', $config['endpoint']);
+        $container->setParameter('faustddd_1c_import.login', $config['login']);
+        $container->setParameter('faustddd_1c_import.password', $config['password']);
     }
 
     public function prepend(ContainerBuilder $container): void

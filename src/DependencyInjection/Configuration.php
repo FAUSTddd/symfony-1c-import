@@ -10,14 +10,24 @@ final class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        return (new TreeBuilder('faustddd_1c_import'))
-            ->getRootNode()
+        $treeBuilder = new TreeBuilder('faustddd_1c_import');
+
+        $treeBuilder->getRootNode()
             ->children()
             ->scalarNode('endpoint')
             ->defaultValue('/import/1c-exchange')
             ->cannotBeEmpty()
             ->end()
+            ->scalarNode('login')
+            ->defaultValue('admin')
+            ->cannotBeEmpty()
             ->end()
-            ->end();   // <-- закрываем root-ноду
+            ->scalarNode('password')
+            ->defaultValue('admin')
+            ->cannotBeEmpty()
+            ->end()
+            ->end();
+
+        return $treeBuilder;
     }
 }

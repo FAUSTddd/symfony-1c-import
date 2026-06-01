@@ -8,15 +8,13 @@ services:
       - '../src/Infrastructure/Controller/'
 
   FaustDDD\Symfony1cImport\Application\Service\Cml1cInteractor:
+    autowire: true
     arguments:
       $projectDir: '%kernel.project_dir%'
-      $login: '%env(IMPORT_1C_LOGIN)%'
-      $password: '%env(IMPORT_1C_PASSWORD)%'
-      $bus: '@messenger.default_bus'
-      $fs: '@filesystem'
+      $login: '%faustddd_1c_import.login%'
+      $password: '%faustddd_1c_import.password%'
 
   FaustDDD\Symfony1cImport\Infrastructure\Controller\Import1CController:
     public: true
+    autowire: true
     tags: [controller.service_arguments]
-    arguments:
-      $interactor: '@FaustDDD\Symfony1cImport\Application\Service\Cml1cInteractor'
