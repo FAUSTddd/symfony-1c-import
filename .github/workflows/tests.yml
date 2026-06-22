@@ -2,6 +2,9 @@ name: Tests
 
 on: [push, pull_request]
 
+permissions:
+  contents: read  # Минимальные права: только чтение кода
+
 jobs:
   test:
     runs-on: ubuntu-latest
