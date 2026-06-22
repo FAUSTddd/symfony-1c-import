@@ -1,40 +1,35 @@
 # Security Policy
 
-## Поддерживаемые версии
+## Supported Versions
 
-| Версия | Поддержка         |
-|--------|-------------------|
-| 8.x    | :white_check_mark: |
-| 7.x    | :white_check_mark: |
-| 6.x    | :white_check_mark: |
-| < 6.0  | :x:               |
+| Version | Supported          |
+|---------|--------------------|
+| 1.1.x   | :white_check_mark: |
+| 1.0.x   | :x:                |
+| &lt; 1.0   | :x:                |
 
-## Сообщение о уязвимости
+## Reporting a Vulnerability
 
-Мы цените безопасность нашего проекта. Если вы обнаружили уязвимость безопасности, пожалуйста, сообщите нам следующим образом:
+Please do not open public issues for security vulnerabilities.
 
-1. **Не** создавайте public issue на GitHub
-2. Отправьте детали уязвимости на email: security@example.com (замените на реальный email)
-3. В письме укажите:
-   - Описание уязвимости
-   - Шаги для воспроизведения
-   - Возможные последствия
-   - Предлагаемое решение (если есть)
+Instead, contact: [faustddd@yandex.ru]
 
-## Процесс обработки
+Include:
+- Description of the vulnerability
+- Steps to reproduce
+- Possible impact
+- Suggested fix (if any)
 
-1. Мы подтвердим получение вашего отчета в течение 48 часов
-2. Мы проведем оценку уязвимости и определим ее серьезность
-3. Мы будем работать над исправлением и выпустим обновление
-4. После выпуска исправления мы опубликуем уведомление о безопасности
+## Response Process
 
-## Рекомендации по безопасности
+1. Acknowledgment within 48 hours
+2. Assessment and severity determination
+3. Fix development and release
+4. Public disclosure after 30 days (coordinated disclosure)
 
-- Не храните учетные данные 1С в открытом виде
-- Используйте переменные окружения для конфигурации
-- Обновляйтесь до последней версии
-- Следите за выпусками security advisories
+## Security Best Practices
 
-## Благодарности
-
-Мы благодарим всех исследователей безопасности за ответственное раскрытие уязвимостей.
+- Do not store 1C credentials in plain text
+- Use environment variables for configuration
+- Keep dependencies updated
+- Monitor security advisories
