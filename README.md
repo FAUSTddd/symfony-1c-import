@@ -1,4 +1,4 @@
-# Symfony 1C Import
+# Symfony 1С Битрикс Import
 [![Tests](https://github.com/FAUSTddd/symfony-1c-import/actions/workflows/tests.yml/badge.svg)](https://github.com/FAUSTddd/symfony-1c-import/actions/workflows/tests.yml)
 ![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue)
 ![Symfony](https://img.shields.io/badge/Symfony-6.4%20|%207.x%20|%208.0-green)
