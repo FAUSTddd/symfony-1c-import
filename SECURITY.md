@@ -2,9 +2,6 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
 | Version | Supported          |
 |---------|--------------------|
 | 1.1.x   | :white_check_mark: |
@@ -13,8 +10,26 @@ currently being supported with security updates.
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+Please do not open public issues for security vulnerabilities.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Instead, contact: faustddd@yandex.ru
+
+Include:
+- Description of the vulnerability
+- Steps to reproduce
+- Possible impact
+- Suggested fix (if any)
+
+## Response Process
+
+1. Acknowledgment within 48 hours
+2. Assessment and severity determination
+3. Fix development and release
+4. Public disclosure after 30 days (coordinated disclosure)
+
+## Security Best Practices
+
+- Do not store 1C credentials in plain text
+- Use environment variables for configuration
+- Keep dependencies updated
+- Monitor security advisories
