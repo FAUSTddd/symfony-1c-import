@@ -12,7 +12,7 @@
 
 Please do not open public issues for security vulnerabilities.
 
-Instead, contact: [faustddd@yandex.ru]
+Instead, contact: faustddd@yandex.ru
 
 Include:
 - Description of the vulnerability
